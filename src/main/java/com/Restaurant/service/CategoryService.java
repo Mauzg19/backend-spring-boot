@@ -11,4 +11,10 @@ public interface CategoryService {
 	public List<Category> findCategoryByRestaurantId(Long restaurantId) throws RestaurantException;
 	public Category findCategoryById(Long id) throws RestaurantException;
 
+	// Nuevo: actualizar categoría
+	public Category updateCategory(Long id, String name) throws RestaurantException;
+
+	// Nuevo: eliminar categoría
+	public void deleteCategory(Long id) throws RestaurantException;
+
 }

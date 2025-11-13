@@ -55,4 +55,32 @@ public class IngredientsController {
 		return new ResponseEntity<>(items,HttpStatus.OK);
 	}
 
+	// Update ingredient (name / category)
+	@PutMapping("/{id}")
+	public ResponseEntity<IngredientsItem> updateIngredient(@PathVariable Long id, @RequestBody CreateIngredientRequest req) throws Exception{
+		IngredientsItem item = ingredientService.updateIngredient(id, req.getRestaurantId(), req.getName(), req.getIngredientCategoryId());
+		return new ResponseEntity<>(item, HttpStatus.OK);
+	}
+
+	// Delete ingredient
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteIngredient(@PathVariable Long id) throws Exception{
+		ingredientService.deleteIngredient(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	// Update ingredient category
+	@PutMapping("/category/{id}")
+	public ResponseEntity<IngredientCategory> updateIngredientCategory(@PathVariable Long id, @RequestBody CreateIngredientCategoryRequest req) throws Exception{
+		IngredientCategory cat = ingredientService.updateIngredientsCategory(id, req.getName());
+		return new ResponseEntity<>(cat, HttpStatus.OK);
+	}
+
+	// Delete ingredient category
+	@DeleteMapping("/category/{id}")
+	public ResponseEntity<?> deleteIngredientCategory(@PathVariable Long id) throws Exception{
+		ingredientService.deleteIngredientsCategory(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 }

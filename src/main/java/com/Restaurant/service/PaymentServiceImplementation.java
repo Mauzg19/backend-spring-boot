@@ -24,7 +24,7 @@ public class PaymentServiceImplementation implements PaymentService{
 			SessionCreateParams params = SessionCreateParams.builder()
 					.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
 					.setMode(SessionCreateParams.Mode.PAYMENT)
-				.setSuccessUrl("https://proyecto-restaurante-six.vercel.app/"+order.getId())
+				.setSuccessUrl("https://proyecto-restaurante-six.vercel.app/payment/success/" + order.getId())
 				.setCancelUrl("https://proyecto-restaurante-six.vercel.app/")
 					.addLineItem(SessionCreateParams.LineItem.builder()
 							.setQuantity(1L)

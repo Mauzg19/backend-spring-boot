@@ -33,6 +33,20 @@ public class CategoryController {
 		Category createdCategory=categoryService.createCategory(category.getName(), user.getId());
 		return new ResponseEntity<Category>(createdCategory,HttpStatus.OK);
 	}
+
+	@PutMapping("/admin/category/{id}")
+	public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestHeader("Authorization") String jwt, @RequestBody Category category) throws RestaurantException, UserException {
+		User user = userService.findUserProfileByJwt(jwt);
+		Category updated = categoryService.updateCategory(id, category.getName());
+		return new ResponseEntity<>(updated, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/admin/category/{id}")
+	public ResponseEntity<?> deleteCategory(@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws RestaurantException, UserException {
+		User user = userService.findUserProfileByJwt(jwt);
+		categoryService.deleteCategory(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 	
 	@GetMapping("/category/restaurant/{id}")
 	public ResponseEntity<List<Category>> getRestaurantsCategory(

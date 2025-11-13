@@ -1,6 +1,7 @@
 package com.Restaurant.service;
 
 import java.util.List;
+import com.Restaurant.model.ContactInformation;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,12 +62,47 @@ public class RestaurantServiceImplementation implements RestaurantService {
 	public Restaurant updateRestaurant(Long restaurantId, CreateRestaurantRequest updatedReq)
 			throws RestaurantException {
 		Restaurant restaurant = findRestaurantById(restaurantId);
-		if (restaurant.getCuisineType() != null) {
+		
+		// Actualizar todos los campos si vienen en la solicitud
+		if (updatedReq.getName() != null) {
+			restaurant.setName(updatedReq.getName());
+		}
+		if (updatedReq.getCuisineType() != null) {
 			restaurant.setCuisineType(updatedReq.getCuisineType());
 		}
-		if (restaurant.getDescription() != null) {
+		if (updatedReq.getDescription() != null) {
 			restaurant.setDescription(updatedReq.getDescription());
 		}
+		if (updatedReq.getOpeningHours() != null) {
+			restaurant.setOpeningHours(updatedReq.getOpeningHours());
+		}
+		if (updatedReq.getContactInformation() != null) {
+			if (restaurant.getContactInformation() == null) {
+				restaurant.setContactInformation(new ContactInformation());
+			}
+			ContactInformation contactInfo = restaurant.getContactInformation();
+			ContactInformation updatedContact = updatedReq.getContactInformation();
+			
+			if (updatedContact.getEmail() != null) {
+				contactInfo.setEmail(updatedContact.getEmail());
+			}
+			if (updatedContact.getMobile() != null) {
+				contactInfo.setMobile(updatedContact.getMobile());
+			}
+			if (updatedContact.getInstagram() != null) {
+				contactInfo.setInstagram(updatedContact.getInstagram());
+			}
+			if (updatedContact.getFacebook() != null) {
+				contactInfo.setFacebook(updatedContact.getFacebook());
+			}
+			if (updatedContact.getTwitter() != null) {
+				contactInfo.setTwitter(updatedContact.getTwitter());
+			}
+		}
+		if (updatedReq.getImages() != null) {
+			restaurant.setImages(updatedReq.getImages());
+		}
+		
 		return restaurantRepository.save(restaurant);
 	}
 	

@@ -24,4 +24,16 @@ public interface IngredientsService {
 
     // Agregar el método updateStock a la interfaz
     public IngredientsItem updateStock(Long id, int quantity) throws Exception;
+
+        // Nuevo: actualizar un ingrediente (nombre y categoría)
+        public IngredientsItem updateIngredient(Long id, Long restaurantId, String ingredientName, Long ingredientCategoryId) throws Exception;
+
+        // Nuevo: eliminar un ingrediente por id
+        public void deleteIngredient(Long id) throws Exception;
+
+        // Nuevo: actualizar categoría de ingrediente
+        public IngredientCategory updateIngredientsCategory(Long id, String name) throws Exception;
+
+        // Nuevo: eliminar categoría de ingrediente
+        public void deleteIngredientsCategory(Long id) throws Exception;
 }
