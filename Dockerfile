@@ -1,15 +1,14 @@
-# Imagen base compatible con Render (Java 17)
-FROM eclipse-temurin:17-jdk
-
-# Establecer el directorio de trabajo
+# Etapa 1: Compilar el proyecto con Maven
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Copiar el archivo JAR al contenedor (asegúrate de que este .jar exista)
-COPY target/Restaurant-0.0.1-SNAPSHOT.jar app.jar
-
-# Exponer el puerto que usa tu backend
+# Etapa 2: Ejecutar la aplicación
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 5454
-
-# Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
