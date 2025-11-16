@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/invoice")
 public class InvoiceController {
 
-    @Autowired
-    private InvoiceService invoiceService;
+    // remove field injection
+    private final InvoiceService invoiceService;
 
+    // add constructor for injection
+    public InvoiceController(InvoiceService invoiceService) {
+        this.invoiceService = invoiceService;
+    }
     @GetMapping("/{orderId}")
     public Invoice getInvoice(@PathVariable Long orderId) {
         return invoiceService.getInvoiceByOrderId(orderId);

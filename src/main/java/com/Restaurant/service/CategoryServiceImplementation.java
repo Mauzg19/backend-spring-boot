@@ -47,4 +47,26 @@ public class CategoryServiceImplementation implements CategoryService {
 		return opt.get();
 	}
 
+	@Override
+	public Category updateCategory(Long id, String name) throws RestaurantException {
+		Optional<Category> opt = categoryRepository.findById(id);
+		if (opt.isEmpty()) {
+			throw new RestaurantException("category not exist with id " + id);
+		}
+		Category cat = opt.get();
+		if (name != null && !name.isBlank()) {
+			cat.setName(name);
+		}
+		return categoryRepository.save(cat);
+	}
+
+	@Override
+	public void deleteCategory(Long id) throws RestaurantException {
+		Optional<Category> opt = categoryRepository.findById(id);
+		if (opt.isEmpty()) {
+			throw new RestaurantException("category not exist with id " + id);
+		}
+		categoryRepository.deleteById(id);
+	}
+
 }

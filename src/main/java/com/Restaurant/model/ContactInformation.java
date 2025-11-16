@@ -14,7 +14,7 @@ public class ContactInformation {
     private String mobile;
     private String twitter;
     private String instagram;
+    private String facebook;
 
-   
 }
 

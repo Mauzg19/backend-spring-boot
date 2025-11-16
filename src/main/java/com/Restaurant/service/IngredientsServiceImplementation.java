@@ -117,4 +117,49 @@ public class IngredientsServiceImplementation implements IngredientsService {
         }
         return item.get();
     }
+
+    @Override
+    public IngredientsItem updateIngredient(Long id, Long restaurantId, String ingredientName, Long ingredientCategoryId) throws Exception {
+        IngredientsItem ingredient = findIngredientsItemById(id);
+        if (ingredientName != null && !ingredientName.isBlank()) {
+            ingredient.setName(ingredientName);
+        }
+        if (ingredientCategoryId != null) {
+            IngredientCategory category = findIngredientsCategoryById(ingredientCategoryId);
+            ingredient.setCategory(category);
+        }
+        return ingredientsItemRepository.save(ingredient);
+    }
+
+    @Override
+    public void deleteIngredient(Long id) throws Exception {
+        Optional<IngredientsItem> item = ingredientsItemRepository.findById(id);
+        if (item.isEmpty()) {
+            throw new Exception("Ingredient not found with id " + id);
+        }
+        ingredientsItemRepository.deleteById(id);
+    }
+
+    @Override
+    public IngredientCategory updateIngredientsCategory(Long id, String name) throws Exception {
+        Optional<IngredientCategory> opt = ingredientsCategoryRepo.findById(id);
+        if (opt.isEmpty()) {
+            throw new Exception("Ingredient category not found with id " + id);
+        }
+        IngredientCategory cat = opt.get();
+        if (name != null && !name.isBlank()) {
+            cat.setName(name);
+        }
+        return ingredientsCategoryRepo.save(cat);
+    }
+
+    @Override
+    public void deleteIngredientsCategory(Long id) throws Exception {
+        Optional<IngredientCategory> opt = ingredientsCategoryRepo.findById(id);
+        if (opt.isEmpty()) {
+            throw new Exception("Ingredient category not found with id " + id);
+        }
+        // Note: this will cascade-delete ingredients if cascade is configured
+        ingredientsCategoryRepo.deleteById(id);
+    }
 }
