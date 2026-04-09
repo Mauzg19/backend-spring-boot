@@ -1,15 +1,7 @@
-# Usar una imagen base de Java
-FROM openjdk:17-jdk-slim
-
-# Establecer el directorio de trabajo
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-
-# Copiar el archivo JAR al contenedor (desde el contexto de build)
-COPY target/Restaurant-0.0.1-SNAPSHOT.jar app.jar
-
-# Exponer el puerto
+COPY target/*.jar app.jar
+COPY docker-entrypoint.sh docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh
 EXPOSE 5454
-
-# Comando para ejecutar la app
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
+ENTRYPOINT ["./docker-entrypoint.sh"]
