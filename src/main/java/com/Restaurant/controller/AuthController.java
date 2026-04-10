@@ -43,7 +43,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "https://proyecto-restaurante-six.vercel.app")
+@CrossOrigin(origins = "https://proyecto-restaurante-six.vercel.app", allowedHeaders = "*", methods = {org.springframework.web.bind.annotation.RequestMethod.GET, org.springframework.web.bind.annotation.RequestMethod.POST, org.springframework.web.bind.annotation.RequestMethod.PUT, org.springframework.web.bind.annotation.RequestMethod.DELETE, org.springframework.web.bind.annotation.RequestMethod.OPTIONS})
 public class AuthController {
 
 	private UserRepository userRepository;
