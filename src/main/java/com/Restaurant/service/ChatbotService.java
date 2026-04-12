@@ -1,15 +1,23 @@
 package com.Restaurant.service;
 
+import com.Restaurant.model.Food;
+import com.Restaurant.repository.foodRepository;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatbotService {
 
     private final ChatClient chatClient;
+    private final foodRepository foodRepository;
 
-    public ChatbotService(ChatClient.Builder chatClientBuilder) {
+    public ChatbotService(ChatClient.Builder chatClientBuilder, foodRepository foodRepository) {
         this.chatClient = chatClientBuilder.build();
+        this.foodRepository = foodRepository;
     }
 
     /**
@@ -19,7 +27,25 @@ public class ChatbotService {
      * @return La respuesta del chatbot o un mensaje de rechazo
      */
     public String generateResponse(String message) {
-        // Validar que la pregunta sea relevante al dominio
+        if (message == null || message.trim().isEmpty()) {
+            return "Por favor, escribe una pregunta para que pueda ayudarte.";
+        }
+
+        String lowerMessage = message.toLowerCase(Locale.ROOT);
+
+        // Respuestas basadas en datos reales del menú cuando se pregunta por platillos o menú.
+        if (isMenuQuestion(lowerMessage)) {
+            List<Food> availableMenu = foodRepository.findAll().stream()
+                    .filter(Food::isAvailable)
+                    .collect(Collectors.toList());
+
+            if (!availableMenu.isEmpty()) {
+                return buildMenuResponse(availableMenu);
+            }
+
+            return "Actualmente no hay platos disponibles registrados en el sistema. Por favor intenta de nuevo más tarde.";
+        }
+
         if (!ChatbotValidator.isRelevantQuestion(message)) {
             return ChatbotValidator.getRejectionMessage();
         }
@@ -33,9 +59,37 @@ public class ChatbotService {
                     .call()
                     .content();
         } catch (Exception e) {
-            // En caso de error, devolver mensaje amigable
             return "Lo siento, hubo un error al procesar tu pregunta. Por favor, intenta de nuevo.";
         }
+    }
+
+    private boolean isMenuQuestion(String message) {
+        return message.contains("menú") || message.contains("menu") || message.contains("platillo") ||
+               message.contains("platos") || message.contains("plato") || message.contains("disponible") ||
+               message.contains("carta") || message.contains("qué hay") || message.contains("qué tenemos") ||
+               message.contains("comidas") || message.contains("bebidas");
+    }
+
+    private String buildMenuResponse(List<Food> menuItems) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Estos son los platillos disponibles en nuestro restaurante:\n");
+
+        int count = 0;
+        for (Food item : menuItems) {
+            if (count >= 12) {
+                builder.append("...y más platos disponibles. Pide más detalles si lo deseas.\n");
+                break;
+            }
+            builder.append(String.format("%d. %s", count + 1, item.getName()));
+            if (item.getDescription() != null && !item.getDescription().isBlank()) {
+                builder.append(String.format(" — %s", item.getDescription()));
+            }
+            builder.append(String.format(". Precio: $%s\n", item.getPrice()));
+            count++;
+        }
+
+        builder.append("\nSi quieres más información sobre un platillo específico, pregúntame por su nombre o categoría.");
+        return builder.toString();
     }
 
     /**
@@ -70,3 +124,4 @@ public class ChatbotService {
                 """;
     }
 }
+
