@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Categoría - Restaurante</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- DEBUG BANNER: quitar después de verificar -->
+        <div id="debug-banner" style="background:#ff6b6b;color:#fff;text-align:center;padding:8px;border-radius:6px;margin-bottom:14px;font-weight:700">UI: versión actualizada (verifica recargando)</div>
+        <h1>Predicción de Categoría de Plato</h1>
+
+        <form id="categoriaForm" class="form-grid">
+            <div class="form-group">
+                <label for="price">Precio del plato</label>
+                <input type="text" id="price" name="price" placeholder="$0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="isVegetarian">Vegetariano</label>
+                <select id="isVegetarian" name="isVegetarian" required>
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="isSeasonal">Estacional</label>
+                <select id="isSeasonal" name="isSeasonal" required>
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Cantidad</label>
+                <input type="number" id="quantity" name="quantity" min="1" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Predecir Categoría</button>
+            </div>
+        </form>
+
+        <div id="resultado" class="resultado-card" aria-live="polite"></div>
+
+        <button type="button" id="verPrediccionesBtn" class="btn btn-success">Ver Predicciones Guardadas</button>
+        <div id="prediccionesContainer" class="predicciones" style="display: none;">
+            <h2>Predicciones Guardadas</h2>
+            <div id="prediccionesList" class="table-responsive"></div>
+        </div>
+
+    </div>
+    <script>
+        // Función para formatear el precio con puntos de miles y signo de peso
+        function formatPrice(value) {
+            // Remover caracteres no numéricos excepto punto y coma
+            let num = value.replace(/[^\d.,]/g, '');
+            // Remover puntos y comas para obtener el número puro
+            num = num.replace(/[.,]/g, '');
+            // Convertir a número
+            const number = parseInt(num) || 0;
+            // Formatear con puntos de miles
+            const formatted = number.toLocaleString('es-ES');
+            return '$' + formatted;
+        }
+
+        // Evento para formatear el precio en tiempo real
+        document.getElementById('price').addEventListener('input', function(e) {
+            const input = e.target;
+            const cursorPos = input.selectionStart;
+            const rawValue = input.value.replace(/[^\d]/g, ''); // Solo números
+            const formatted = formatPrice(rawValue);
+            input.value = formatted;
+            // Mantener la posición del cursor
+            const newCursorPos = formatted.length - (input.value.length - cursorPos);
+            input.setSelectionRange(newCursorPos, newCursorPos);
+        });
+
+        document.getElementById('categoriaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = ''; // Limpiar resultado anterior
+
+            // Extraer el valor numérico del precio formateado
+            const priceFormatted = document.getElementById('price').value;
+            const priceNumeric = parseFloat(priceFormatted.replace(/[$.]/g, '').replace(',', '.')) || 0;
+
+            const data = {
+                price: priceNumeric,
+                isVegetarian: document.getElementById('isVegetarian').value === 'true',
+                isSeasonal: document.getElementById('isSeasonal').value === 'true',
+                quantity: parseInt(document.getElementById('quantity').value)
+            };
+
+            try {
+                const response = await fetch('/api/categoria/prediccion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Ocurrió un error en la predicción.');
+                }
+
+                const result = await response.json();
+                const categoria = result.predictedCategory.replace(/_/g, ' ');
+                const confianza = result.confidence !== undefined ? result.confidence.toFixed(2) : null;
+
+                let mensaje = `<h2>Predicción de Categoría</h2>`;
+                mensaje += `<p>La categoría predicha para este plato es: <strong>${categoria}</strong>.</p>`;
+                mensaje += `<p>Esto significa que sus características (precio, ingredientes y tipo) se asemejan a los de platos típicos de esta categoría.</p>`;
+
+                if (confianza !== null) {
+                    let nivelConfianza = "desconocido";
+                    if (confianza > 80) {
+                        nivelConfianza = "alta";
+                    } else if (confianza > 60) {
+                        nivelConfianza = "media";
+                    } else {
+                        nivelConfianza = "baja";
+                    }
+                    mensaje += `<p>El nivel de confianza de esta predicción es <strong>${nivelConfianza}</strong> (${confianza}%).</p>`;
+                    if (nivelConfianza === "baja") {
+                        mensaje += `<p><small>Recomendación: Use esta predicción con cautela. Puede haber factores no considerados.</small></p>`;
+                    }
+                }
+                resultadoDiv.innerHTML = mensaje;
+
+            } catch (error) {
+                resultadoDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${error.message}</p>`;
+            }
+        });
+
+        // Evento para mostrar/ocultar predicciones guardadas
+        document.getElementById('verPrediccionesBtn').addEventListener('click', async function() {
+            const container = document.querySelector('.container');
+            const prediccionesContainer = document.getElementById('prediccionesContainer');
+            const listDiv = document.getElementById('prediccionesList');
+
+            if (prediccionesContainer.style.display === 'none') {
+                // Expandir contenedor y mostrar predicciones
+                container.classList.add('expanded');
+
+                try {
+                    const response = await fetch('/api/categoria/predicciones');
+                    if (!response.ok) {
+                        throw new Error('Error al cargar las predicciones.');
+                    }
+
+                    const predicciones = await response.json();
+
+                    if (!Array.isArray(predicciones) || predicciones.length === 0) {
+                        listDiv.innerHTML = '<p class="muted">No hay predicciones guardadas aún.</p>';
+                    } else {
+                        // Generar tabla usando clases CSS (sin estilos inline)
+                        let html = '<div class="table-responsive">';
+                        html += '<table class="table">';
+                        html += '<thead><tr>';
+                        html += '<th>ID</th>';
+                        html += '<th>Precio</th>';
+                        html += '<th>Vegetariano</th>';
+                        html += '<th>Estacional</th>';
+                        html += '<th>Cantidad</th>';
+                        html += '<th>Categoría</th>';
+                        html += '<th>Confianza</th>';
+                        html += '<th>Fecha</th>';
+                        html += '</tr></thead><tbody>';
+
+                        predicciones.forEach(prediccion => {
+                            const fecha = prediccion.createdAt ? new Date(prediccion.createdAt).toLocaleString('es-ES') : '-';
+                            const categoria = prediccion.predictedCategory ? prediccion.predictedCategory.replace(/_/g, ' ') : '-';
+                            const precio = prediccion.price != null ? '$' + prediccion.price.toLocaleString('es-ES') : '-';
+                            const confianza = (prediccion.confidence != null) ? prediccion.confidence.toFixed(2) + '%' : '-';
+
+                            html += `<tr>
+                                <td>${prediccion.id}</td>
+                                <td>${precio}</td>
+                                <td>${prediccion.isVegetarian ? 'Sí' : 'No'}</td>
+                                <td>${prediccion.isSeasonal ? 'Sí' : 'No'}</td>
+                                <td>${prediccion.quantity ?? '-'}</td>
+                                <td>${categoria}</td>
+                                <td>${confianza}</td>
+                                <td>${fecha}</td>
+                            </tr>`;
+                        });
+
+                        html += '</tbody></table></div>';
+                        listDiv.innerHTML = html;
+                    }
+
+                    prediccionesContainer.style.display = 'block';
+                    this.textContent = 'Ocultar Predicciones Guardadas';
+
+                } catch (error) {
+                    listDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${error.message}</p>`;
+                    prediccionesContainer.style.display = 'block';
+                }
+            } else {
+                // Contraer contenedor y ocultar predicciones
+                container.classList.remove('expanded');
+                prediccionesContainer.style.display = 'none';
+                this.textContent = 'Ver Predicciones Guardadas';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "dbhub": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx -y @bytebase/dbhub --transport stdio --dsn \"mysql://restaurant_user:restaurant_pass@localhost:3306/restaurant_db\""
+      ]
+    }
+  }
+}
