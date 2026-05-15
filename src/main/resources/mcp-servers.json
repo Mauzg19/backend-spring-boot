@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "restaurante-local": {
+      "transport": "WEBMVC_SSE",
+      "endpoint": "http://localhost:5454/mcp/sse"
+    }
+  },
+  "comment": "CONFIGURACIÓN DE SERVIDORES MCP EXTERNOS (OPCIONAL)",
+  "templates": {
+    "dbhub-mysql-local": {
+      "description": "Conectar a MySQL local vía DBHub",
+      "transport": "STDIO",
+      "command": "npx",
+      "args": [
+        "@bytebase/dbhub@latest",
+        "--transport", "stdio",
+        "--dsn", "mysql://root:Mauricio19@localhost:3306/restaurante_ing"
+      ]
+    },
+    "filesystem-server": {
+      "description": "Acceso a sistema de archivos vía MCP",
+      "transport": "STDIO",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "--mount", "type=bind,src=./projects,dst=/projects",
+        "mcp/filesystem",
+        "/projects"
+      ]
+    }
+  }
+}

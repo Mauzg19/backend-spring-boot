@@ -27,6 +27,7 @@ public class User {
 
 	private String fullName;
 	private String email;
+	@JsonIgnore
 	private String password;
 
 	private USER_ROLE role;
@@ -37,10 +38,10 @@ public class User {
 
 	@ElementCollection
 	private List<RestaurantDto> favorites=new ArrayList<>();
-	
+
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
-	
+
 	private String status;
 
 }

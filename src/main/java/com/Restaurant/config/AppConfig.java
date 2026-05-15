@@ -1,10 +1,10 @@
 package com.Restaurant.config;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class AppConfig {
 
     @Bean
@@ -27,20 +28,22 @@ public class AppConfig {
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize
                 		.requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
-                                .requestMatchers("/api/chat").permitAll()
+                                .requestMatchers("/api/chat").authenticated()
+                                .requestMatchers("/api/reports/**").authenticated()
+                                .requestMatchers("/mcp/**").authenticated()
                                 .requestMatchers("/api/**").authenticated()
-                                
+
                                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-               
-		
+
+
 		return http.build();
-		
+
 	}
-	
+
     // CORS Configuration
     private CorsConfigurationSource corsConfigurationSource() {
         return new CorsConfigurationSource() {

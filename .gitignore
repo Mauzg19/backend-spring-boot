@@ -3,11 +3,9 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-# Java / IDE
-.jdks/
-.idea/
-*.log
+reports/
+*.csv
+*.txt
 
 ### STS ###
 .apt_generated
@@ -36,3 +34,4 @@ build/
 
 ### VS Code ###
 .vscode/
+apache-maven-3.9.7/
