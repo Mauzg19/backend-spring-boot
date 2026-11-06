@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import com.stripe.exception.StripeException;
 import com.Restaurant.Exception.CartException;
@@ -33,7 +34,7 @@ public class OrderController {
 	private UserService userService;
 	
     @PostMapping("/order")
-	public ResponseEntity<PaymentResponse>  createOrder(@RequestBody CreateOrderRequest order,
+	public ResponseEntity<PaymentResponse>  createOrder(@Valid @RequestBody CreateOrderRequest order,
 			@RequestHeader("Authorization") String jwt) 
 					throws UserException, RestaurantException, 
 					CartException, 

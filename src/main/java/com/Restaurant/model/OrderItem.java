@@ -2,6 +2,7 @@ package com.Restaurant.model;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,5 +29,7 @@ public class OrderItem {
     
     private List<String> ingredients;
 
-}
+    @Column(length = 1000)
+    private String notes;
 
+}

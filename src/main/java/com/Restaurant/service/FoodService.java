@@ -20,8 +20,17 @@ public interface FoodService {
 			boolean isVegetarian, boolean isNonveg, boolean isSeasonal,String foodCategory) throws FoodException;
 	
 	public List<Food> searchFood(String keyword);
-	
+
+	public List<Food> findAllFoods();
+
 	public Food findFoodById(Long foodId) throws FoodException;
 
+	public Food findFoodByClientOperationId(String clientOperationId);
+
 	public Food updateAvailibilityStatus(Long foodId) throws FoodException;
+
+	public Food updateAvailability(Long foodId, boolean available) throws FoodException;
+
+	public Food updateFood(Long foodId, String name, String description, Long price,
+			List<String> images, Category category) throws FoodException;
 }

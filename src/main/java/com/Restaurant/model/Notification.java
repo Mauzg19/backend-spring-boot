@@ -2,6 +2,7 @@ package com.Restaurant.model;
 
 import java.util.Date;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,11 +29,15 @@ public class Notification {
     
     private String message;
 
+    private String title;
+
+    @Column(name = "notification_type", length = 64)
+    private String type;
+
+    private Long orderId;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date sentAt;
     
     private boolean readStatus;
-    
-    
 }
-

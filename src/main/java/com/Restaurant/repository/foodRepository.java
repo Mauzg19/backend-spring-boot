@@ -1,6 +1,7 @@
 package com.Restaurant.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ public interface foodRepository extends JpaRepository<Food, Long> {
 
 	
 	List<Food> findByRestaurantId(Long restaurantId);
+
+	Optional<Food> findByClientOperationId(String clientOperationId);
 	
 	@Query("SELECT f FROM Food f WHERE "
 			+ "f.name LIKE %:keyword% OR "

@@ -16,6 +16,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,8 +40,20 @@ public class Order {
 	private Restaurant restaurant;
 
 	private Long totalAmount;
+
+	private Long subtotalAmount;
+
+	private Long discountAmount;
+
+	private int rewardPointsReserved;
+
+	@ManyToOne
+	private RewardCatalogItem appliedReward;
 	
 	private String orderStatus;
+
+	@Column(unique = true)
+	private String clientRequestId;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
@@ -57,5 +71,12 @@ public class Order {
 	private int totalItem;
 	
 	private int totalPrice;
+
+	@Transient
+	public String getPaymentStatus() {
+		return payment == null || payment.getPaymentStatus() == null
+				? "PENDING"
+				: payment.getPaymentStatus();
+	}
 
 }

@@ -1,5 +1,6 @@
 package com.Restaurant.service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ public class CartServiceImplementation implements CartSerive {
 		Cart cart = findCartByUserId(user.getId());
 
 		for (CartItem cartItem : cart.getItems()) {
-			if (cartItem.getFood().equals(menuItem.get())) {
+			if (cartItem.getFood().equals(menuItem.get())
+					&& Objects.equals(cartItem.getNotes(), req.getNotes())) {
 
 				int newQuantity = cartItem.getQuantity() + req.getQuantity();
 				return updateCartItemQuantity(cartItem.getId(),newQuantity);
@@ -54,6 +56,7 @@ public class CartServiceImplementation implements CartSerive {
 		newCartItem.setQuantity(req.getQuantity());
 		newCartItem.setCart(cart);
 		newCartItem.setIngredients(req.getIngredients());
+		newCartItem.setNotes(req.getNotes());
 		newCartItem.setTotalPrice(req.getQuantity()*menuItem.get().getPrice());
 		
 		CartItem savedItem=cartItemRepository.save(newCartItem);

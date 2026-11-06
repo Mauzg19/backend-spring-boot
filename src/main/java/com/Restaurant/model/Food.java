@@ -38,6 +38,9 @@ public class Food {
     
     private boolean isVegetarian;
     private boolean isSeasonal;
+
+    @Column(unique = true, length = 64)
+    private String clientOperationId;
     
     @ManyToMany
     private List<IngredientsItem> ingredients=new ArrayList<>();

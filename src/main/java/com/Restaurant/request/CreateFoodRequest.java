@@ -27,6 +27,10 @@ public class CreateFoodRequest {
 
    
     private Long restaurantId;
+
+    private String clientOperationId;
+
+    private boolean available = true;
     
     private boolean vegetarian;
     private boolean seasonal;

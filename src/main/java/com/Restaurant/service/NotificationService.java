@@ -11,8 +11,13 @@ public interface NotificationService {
 	
 	public Notification sendOrderStatusNotification(Order order);
 	public void sendRestaurantNotification(Restaurant restaurant, String message);
+	public void sendNewOrderNotification(Order order);
 	public void sendPromotionalNotification(User user, String message);
 	
 	public List<Notification> findUsersNotification(Long userId);
+	public boolean markAsRead(Long notificationId, Long userId);
+	public int markAllAsRead(Long userId);
+	public void registerDeviceToken(User user, String token, String platform);
+	public void unregisterDeviceToken(User user, String token);
 
 }

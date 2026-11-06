@@ -53,6 +53,8 @@ public class FoodServiceImplementation implements FoodService {
 			food.setPrice((long) req.getPrice());
 			food.setSeasonal(req.isSeasonal());		
 			food.setVegetarian(req.isVegetarian());
+			food.setAvailable(req.isAvailable());
+			food.setClientOperationId(req.getClientOperationId());
 			food.setIngredients(req.getIngredients());
 		food.setRestaurant(restaurant);
 			food = foodRepository.save(food);
@@ -141,6 +143,11 @@ public class FoodServiceImplementation implements FoodService {
 	}
 
 	@Override
+	public List<Food> findAllFoods() {
+		return foodRepository.findAll();
+	}
+
+	@Override
 	public Food updateAvailibilityStatus(Long id) throws FoodException {
 		Food food = findFoodById(id);
 		
@@ -150,12 +157,36 @@ public class FoodServiceImplementation implements FoodService {
 	}
 
 	@Override
+	public Food updateAvailability(Long id, boolean available) throws FoodException {
+		Food food = findFoodById(id);
+		food.setAvailable(available);
+		return foodRepository.save(food);
+	}
+
+	@Override
+	public Food updateFood(Long id, String name, String description, Long price,
+			List<String> images, Category category) throws FoodException {
+		Food food = findFoodById(id);
+		if (name != null) food.setName(name);
+		if (description != null) food.setDescription(description);
+		if (price != null) food.setPrice(price);
+		if (images != null) food.setImages(images);
+		if (category != null) food.setFoodCategory(category);
+		return foodRepository.save(food);
+	}
+
+	@Override
 	public Food findFoodById(Long foodId) throws FoodException {
 		Optional<Food> food = foodRepository.findById(foodId);
 		if (food.isPresent()) {
 			return food.get();
 		}
 		throw new FoodException("food with id" + foodId + "not found");
+	}
+
+	@Override
+	public Food findFoodByClientOperationId(String clientOperationId) {
+		return foodRepository.findByClientOperationId(clientOperationId).orElse(null);
 	}
 
 }

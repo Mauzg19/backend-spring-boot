@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,7 +28,10 @@ public class AppConfig {
 
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize
+                		.requestMatchers("/api/payments/stripe/webhook", "/api/payments/stripe/return").permitAll()
                 		.requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
+                		.requestMatchers(HttpMethod.GET, "/api/food", "/api/food/**",
+                				"/api/restaurants", "/api/restaurants/**").permitAll()
                                 .requestMatchers("/api/chat").authenticated()
                                 .requestMatchers("/api/reports/**").authenticated()
                                 .requestMatchers("/mcp/**").authenticated()
@@ -50,9 +54,12 @@ public class AppConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Arrays.asList(
-                    "http://localhost:3000",
-                    "http://localhost:4200",
+                cfg.setAllowedOriginPatterns(Arrays.asList(
+                    "http://localhost:[*]",
+                    "http://127.0.0.1:[*]",
+                    "http://10.*.*.*:[*]",
+                    "http://192.168.*.*:[*]",
+                    "http://172.*.*.*:[*]",
                     "https://proyecto-restaurante-six.vercel.app"
                 ));
                 cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

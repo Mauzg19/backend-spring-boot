@@ -14,9 +14,13 @@ import com.Restaurant.request.CreateOrderRequest;
 
 public interface OrderService {
 	
-	 public PaymentResponse createOrder(CreateOrderRequest order, User user) throws UserException, RestaurantException, CartException, StripeException;
+	 public PaymentResponse createOrder(CreateOrderRequest order, User user) throws UserException, RestaurantException, CartException, OrderException, StripeException;
+
+	 public PaymentResponse getPaymentStatus(Long orderId, User user) throws OrderException, StripeException;
 	 
 	 public Order updateOrder(Long orderId, String orderStatus) throws OrderException;
+
+	 public Order updateOrder(Long orderId, String orderStatus, User actor) throws OrderException;
 	 
 	 public void cancelOrder(Long orderId) throws OrderException;
 	 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,9 +33,11 @@ public class CartItem {
     private int quantity;
     
     private List<String> ingredients;
+
+    @Column(length = 1000)
+    private String notes;
     
     private Long totalPrice;
     
    
 }
-

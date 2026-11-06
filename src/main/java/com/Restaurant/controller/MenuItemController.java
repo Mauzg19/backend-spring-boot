@@ -24,6 +24,11 @@ public class MenuItemController {
 	@Autowired
 	private UserService userService;
 
+	@GetMapping()
+	public ResponseEntity<List<Food>> getAllMenuItems() {
+		return ResponseEntity.ok(menuItemService.findAllFoods());
+	}
+
 
 	@GetMapping("/search")
 	public ResponseEntity<List<Food>> searchFood(
