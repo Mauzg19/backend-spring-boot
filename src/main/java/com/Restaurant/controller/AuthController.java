@@ -125,8 +125,6 @@ public class AuthController {
 		String username = loginRequest.getEmail();
 		String password = loginRequest.getPassword();
 
-		System.out.println(username + " ----- " + password);
-
 		Authentication authentication = authenticate(username, password);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -149,14 +147,10 @@ public class AuthController {
 	private Authentication authenticate(String username, String password) {
 		UserDetails userDetails = customUserDetails.loadUserByUsername(username);
 
-		System.out.println("sign in userDetails - " + userDetails);
-
 		if (userDetails == null) {
-			System.out.println("sign in userDetails - null " + userDetails);
 			throw new BadCredentialsException("Invalid username or password");
 		}
 		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-			System.out.println("sign in userDetails - password not match " + userDetails);
 			throw new BadCredentialsException("Invalid username or password");
 		}
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -211,3 +205,4 @@ public class AuthController {
 	    }
 	    
 }
+
