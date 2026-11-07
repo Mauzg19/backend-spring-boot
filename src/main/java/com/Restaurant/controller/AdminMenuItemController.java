@@ -82,10 +82,13 @@ public class AdminMenuItemController {
 
 	@PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> uploadProductImage(
-			@PathVariable String id,
-			@RequestParam("image") MultipartFile image) throws java.io.IOException {
+			@PathVariable Long id,
+			@RequestParam("image") MultipartFile image) throws java.io.IOException, FoodException {
 		try {
-			return ResponseEntity.ok(Map.of("url", productImageStorage.save(image)));
+			menuItemService.findFoodById(id);
+			String imageUrl = productImageStorage.save(image);
+			menuItemService.updateFood(id, null, null, null, List.of(imageUrl), null);
+			return ResponseEntity.ok(Map.of("url", imageUrl));
 		} catch (IllegalArgumentException exception) {
 			return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
 		}
