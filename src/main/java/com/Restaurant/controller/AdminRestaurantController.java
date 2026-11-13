@@ -19,6 +19,7 @@ import com.Restaurant.model.User;
 import com.Restaurant.request.CreateRestaurantRequest;
 import com.Restaurant.response.ApiResponse;
 import com.Restaurant.service.RestaurantService;
+import com.Restaurant.service.RestaurantAccess;
 import com.Restaurant.service.UserService;
 
 @RestController
@@ -37,7 +38,6 @@ public class AdminRestaurantController {
 
 			User user = userService.findUserProfileByJwt(jwt);
 		
-			System.out.println("----TRUE___-----"+jwt);
 			Restaurant restaurant = restaurantService.createRestaurant(req,user);
 			return ResponseEntity.ok(restaurant);
 	}
@@ -47,6 +47,7 @@ public class AdminRestaurantController {
 	public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody CreateRestaurantRequest req,
 			@RequestHeader("Authorization") String jwt) throws RestaurantException, UserException {
 		User user = userService.findUserProfileByJwt(jwt);
+		RestaurantAccess.require(user, restaurantService.findRestaurantById(id));
 		
 			Restaurant restaurant = restaurantService.updateRestaurant(id, req);
 			return ResponseEntity.ok(restaurant);
@@ -57,6 +58,7 @@ public class AdminRestaurantController {
 	public ResponseEntity<ApiResponse> deleteRestaurantById(@PathVariable("id") Long restaurantId,
 			@RequestHeader("Authorization") String jwt) throws RestaurantException, UserException {
 		User user = userService.findUserProfileByJwt(jwt);
+		RestaurantAccess.require(user, restaurantService.findRestaurantById(restaurantId));
 		
 			restaurantService.deleteRestaurant(restaurantId);
 			
@@ -69,6 +71,7 @@ public class AdminRestaurantController {
 	public ResponseEntity<Restaurant> updateStataurantStatus(
 			@RequestHeader("Authorization") String jwt,
 			@PathVariable Long id) throws RestaurantException, UserException {
+		RestaurantAccess.require(userService.findUserProfileByJwt(jwt), restaurantService.findRestaurantById(id));
 		
 			Restaurant restaurant = restaurantService.updateRestaurantStatus(id);
 			return ResponseEntity.ok(restaurant);

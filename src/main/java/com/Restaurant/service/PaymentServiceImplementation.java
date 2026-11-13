@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.Restaurant.repository.OrderRepository;
 import com.Restaurant.repository.PaymentRepository;
 import com.stripe.Stripe;
 import com.stripe.model.Coupon;
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.StripeObject;
@@ -173,8 +173,17 @@ public class PaymentServiceImplementation implements PaymentService {
 		if (!type.startsWith("checkout.session.")) {
 			return;
 		}
-		Optional<StripeObject> eventObject = event.getDataObjectDeserializer().getObject();
-		if (eventObject.isEmpty() || !(eventObject.get() instanceof Session session)) {
+		var deserializer = event.getDataObjectDeserializer();
+		StripeObject eventObject;
+		try {
+			var compatible = deserializer.getObject();
+			// Signed snapshots can use the account's API version instead of the SDK's.
+			// The order, session, currency and total are checked below before changing state.
+			eventObject = compatible.isPresent() ? compatible.get() : deserializer.deserializeUnsafe();
+		} catch (EventDataObjectDeserializationException exception) {
+			throw new IllegalArgumentException("No se pudo interpretar la sesión de Checkout.", exception);
+		}
+		if (!(eventObject instanceof Session session) || !StringUtils.hasText(session.getId())) {
 			throw new IllegalArgumentException("El evento Stripe no contiene una sesión de Checkout válida.");
 		}
 
@@ -293,10 +302,8 @@ public class PaymentServiceImplementation implements PaymentService {
 			return;
 		}
 
-		String nextStatus = explicitStatus;
-		if (nextStatus == null && "paid".equalsIgnoreCase(session.getPaymentStatus())) {
-			nextStatus = "PAID";
-		}
+		String nextStatus = "paid".equalsIgnoreCase(session.getPaymentStatus())
+				? "PAID" : explicitStatus;
 		if (nextStatus == null) {
 			return;
 		}
