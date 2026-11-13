@@ -69,6 +69,8 @@ public class IngredientsServiceImplementation implements IngredientsService {
             throws Exception {
 
         IngredientCategory category = findIngredientsCategoryById(ingredientCategoryId);
+        Restaurant restaurant = restaurantService.findRestaurantById(restaurantId);
+        RestaurantAccess.requireSameRestaurant(restaurant, category.getRestaurant());
 
         IngredientsItem isExist = ingredientsItemRepository
                 .findByRestaurantIdAndNameIngoreCase(restaurantId, ingredientName, category.getName());
@@ -77,7 +79,6 @@ public class IngredientsServiceImplementation implements IngredientsService {
             return isExist;
         }
 
-        Restaurant restaurant = restaurantService.findRestaurantById(restaurantId);
         IngredientsItem item = new IngredientsItem();
         item.setName(ingredientName);
         item.setRestaurant(restaurant);
@@ -109,8 +110,8 @@ public class IngredientsServiceImplementation implements IngredientsService {
         return ingredientsItemRepository.save(ingredient);
     }
 
-    // Nuevo método para encontrar un ingrediente por ID
-    private IngredientsItem findIngredientsItemById(Long id) throws Exception {
+    @Override
+    public IngredientsItem findIngredientsItemById(Long id) throws Exception {
         Optional<IngredientsItem> item = ingredientsItemRepository.findById(id);
         if (item.isEmpty()) {
             throw new Exception("Ingredient not found with id " + id);
@@ -126,6 +127,7 @@ public class IngredientsServiceImplementation implements IngredientsService {
         }
         if (ingredientCategoryId != null) {
             IngredientCategory category = findIngredientsCategoryById(ingredientCategoryId);
+            RestaurantAccess.requireSameRestaurant(ingredient.getRestaurant(), category.getRestaurant());
             ingredient.setCategory(category);
         }
         return ingredientsItemRepository.save(ingredient);

@@ -89,12 +89,10 @@ public class OrderServiceImplementation implements OrderService {
 				.orElseThrow(() -> new RestaurantException(
 						"Restaurant not found with id " + request.getRestaurantId()));
 
-		Address savedAddress = addressRepository.save(request.getDeliveryAddress());
-		if (!user.getAddresses().contains(savedAddress)) {
-			user.getAddresses().add(savedAddress);
-		}
-
-		userRepository.save(user);
+		Address deliveryAddress = request.getDeliveryAddress();
+		deliveryAddress.setId(null);
+		deliveryAddress.setClientOperationId(null);
+		Address savedAddress = addressRepository.save(deliveryAddress);
 
 		List<OrderItem> orderItems = new ArrayList<>();
 		long totalAmount = 0;

@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.Restaurant.model.Restaurant;
-import com.Restaurant.domain.USER_ROLE;
-import java.util.Objects;
+import com.Restaurant.service.RestaurantAccess;
+import com.Restaurant.model.Category;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import com.Restaurant.service.CategoryService;
@@ -59,15 +59,14 @@ public class AdminMenuItemController {
 			@RequestBody CreateFoodRequest item, 
 			@RequestHeader("Authorization") String jwt)
 			throws FoodException, UserException, RestaurantException {
-		System.out.println("req-controller ----"+item);
 		User user = userService.findUserProfileByJwt(jwt);
 		if (item.getClientOperationId() != null && !item.getClientOperationId().isBlank()) {
 			Food existing = menuItemService.findFoodByClientOperationId(item.getClientOperationId());
 			if (existing != null) {
-				requireRestaurantAccess(user, existing.getRestaurant());
-				com.Restaurant.model.Category category = item.getCategory() == null
+				RestaurantAccess.require(user, existing.getRestaurant());
+				Category category = item.getCategory() == null
 						? existing.getFoodCategory()
-						: categoryService.findCategoryById(item.getCategory().getId());
+						: categoryForRestaurant(item.getCategory().getId(), existing.getRestaurant());
 				Food updated = menuItemService.updateFood(
 						existing.getId(), item.getName(), item.getDescription(),
 						item.getPrice(), item.getImages(), category);
@@ -80,8 +79,10 @@ public class AdminMenuItemController {
 		}
 //		Category category=categoryService.findCategoryById(item.getCategoryId());
 		Restaurant restaurant=restaurantService.findRestaurantById(item.getRestaurantId());
-		requireRestaurantAccess(user, restaurant);
-			Food menuItem = menuItemService.createFood(item,item.getCategory(),restaurant);
+		RestaurantAccess.require(user, restaurant);
+			Category category = item.getCategory() == null ? null
+					: categoryForRestaurant(item.getCategory().getId(), restaurant);
+			Food menuItem = menuItemService.createFood(item,category,restaurant);
 			return ResponseEntity.ok(menuItem);
 
 	}
@@ -144,27 +145,28 @@ public class AdminMenuItemController {
 			@PathVariable Long id,
 			@RequestBody FoodUpdateRequest request,
 			@RequestHeader("Authorization") String jwt) throws FoodException, RestaurantException, UserException {
-		requireFoodAccess(jwt, id);
-		com.Restaurant.model.Category category = request.categoryId() == null
+		Food food = requireFoodAccess(jwt, id);
+		Category category = request.categoryId() == null
 				? null
-				: categoryService.findCategoryById(request.categoryId());
+				: categoryForRestaurant(request.categoryId(), food.getRestaurant());
 		Food menuItem = menuItemService.updateFood(
 				id, request.name(), request.description(), request.price(),
 				request.images(), category);
 		return ResponseEntity.ok(menuItem);
 	}
 
-	private void requireFoodAccess(String jwt, Long id) throws FoodException, UserException {
+	private Food requireFoodAccess(String jwt, Long id) throws FoodException, UserException {
 		User actor = userService.findUserProfileByJwt(jwt);
-		requireRestaurantAccess(actor, menuItemService.findFoodById(id).getRestaurant());
+		Food food = menuItemService.findFoodById(id);
+		RestaurantAccess.require(actor, food.getRestaurant());
+		return food;
 	}
 
-	private void requireRestaurantAccess(User actor, Restaurant restaurant) {
-		if (actor.getRole() == USER_ROLE.ROLE_ADMIN) return;
-		if (restaurant == null || restaurant.getOwner() == null
-				|| !Objects.equals(actor.getId(), restaurant.getOwner().getId())) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El producto pertenece a otro restaurante.");
-		}
+	private Category categoryForRestaurant(Long id, Restaurant restaurant) throws RestaurantException {
+		if (id == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona una categoría válida.");
+		Category category = categoryService.findCategoryById(id);
+		RestaurantAccess.requireSameRestaurant(restaurant, category.getRestaurant());
+		return category;
 	}
 
 	public record AvailabilityRequest(boolean available) {}

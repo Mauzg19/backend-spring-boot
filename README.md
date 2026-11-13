@@ -110,6 +110,10 @@ uploaded images survive application/container restarts.
 ## Runtime configuration
 
 Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and `JWT_SECRET` before starting the API.
+
+Set `APP_PASSWORD_RESET_URL` to the React password reset page in the same environment
+and configure the SMTP connection before using password recovery. The sender defaults
+to `SMTP_USERNAME`. Set `APP_MAIL_FROM` if it uses a different address.
 Use a randomly generated JWT secret of at least 32 bytes. Replacing the previous
 signing key requires users to sign in again. Public registration creates a
 customer account. Provision restaurant owners and platform administrators through
