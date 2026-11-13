@@ -24,12 +24,13 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AppConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, JwtProvider jwtProvider) throws Exception {
 
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize
                 		.requestMatchers("/api/payments/stripe/webhook", "/api/payments/stripe/return").permitAll()
                 		.requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
+                        .requestMatchers("/api/customers", "/api/pending-customers", "/api/analytics/**").hasRole("ADMIN")
                 		.requestMatchers(HttpMethod.GET, "/api/food", "/api/food/**",
                 				"/api/restaurants", "/api/restaurants/**").permitAll()
                                 .requestMatchers("/api/chat").authenticated()
@@ -39,7 +40,7 @@ public class AppConfig {
 
                                 .anyRequest().permitAll()
                 )
-                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenValidator(jwtProvider), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 

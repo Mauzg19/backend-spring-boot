@@ -2,6 +2,8 @@ package com.Restaurant.service;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +49,7 @@ public class CartServiceImplementation implements CartSerive {
 					&& Objects.equals(cartItem.getNotes(), req.getNotes())) {
 
 				int newQuantity = cartItem.getQuantity() + req.getQuantity();
-				return updateCartItemQuantity(cartItem.getId(),newQuantity);
+				return updateCartItemQuantity(cartItem.getId(), newQuantity, jwt);
 			}
 		}
 
@@ -68,10 +70,17 @@ public class CartServiceImplementation implements CartSerive {
 	}
 
 	@Override
-	public CartItem updateCartItemQuantity(Long cartItemId,int quantity) throws CartItemException {
+	public CartItem updateCartItemQuantity(Long cartItemId, int quantity, String jwt) throws CartItemException, UserException {
+		if (cartItemId == null || quantity <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Indica el artículo y una cantidad mayor que cero.");
+		}
 		Optional<CartItem> cartItem=cartItemRepository.findById(cartItemId);
 		if(cartItem.isEmpty()) {
 			throw new CartItemException("cart item not exist with id "+cartItemId);
+		}
+		User user = userService.findUserProfileByJwt(jwt);
+		if (!Objects.equals(cartItem.get().getCart().getCustomer().getId(), user.getId())) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "El artículo pertenece a otro carrito.");
 		}
 		cartItem.get().setQuantity(quantity);
 		cartItem.get().setTotalPrice((cartItem.get().getFood().getPrice()*quantity));

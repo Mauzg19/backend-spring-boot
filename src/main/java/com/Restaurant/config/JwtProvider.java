@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.nio.charset.StandardCharsets;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,7 +20,15 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtProvider {
 	
-	private SecretKey key=Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
+	private final SecretKey key;
+
+	public JwtProvider(@Value("${app.jwt.secret}") String secret) {
+		key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+	}
+
+	Claims parseToken(String jwt) {
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+	}
 	
 	public String generateToken(Authentication auth) {
 		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
@@ -42,7 +52,7 @@ public class JwtProvider {
 		if (jwt.toLowerCase().startsWith("bearer ")) {
 			jwt = jwt.substring(7);
 		}
-		Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+		Claims claims = parseToken(jwt);
 		String email = String.valueOf(claims.get("email"));
 		return email;
 	}

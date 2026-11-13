@@ -107,6 +107,14 @@ Product images uploaded from the administrator app are stored in
 Set `APP_UPLOADS_PATH` to a persistent directory when deploying the backend so
 uploaded images survive application/container restarts.
 
+## Runtime configuration
+
+Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and `JWT_SECRET` before starting the API.
+Use a randomly generated JWT secret of at least 32 bytes. Replacing the previous
+signing key requires users to sign in again. Public registration creates a
+customer account. Provision restaurant owners and platform administrators through
+an authorized administration process.
+
 ## Stripe checkout configuration
 
 Configure these environment variables before starting the backend:
@@ -117,6 +125,11 @@ Configure these environment variables before starting the backend:
 | `STRIPE_WEBHOOK_SECRET` | Signing secret for validating Stripe webhook requests. |
 | `STRIPE_CHECKOUT_BACKEND_URL` | Public base URL of this backend, used for Stripe's success and cancel return URLs. |
 | `STRIPE_CHECKOUT_RETURN_URL` | Client URL to which the backend redirects after reconciling a Checkout return. |
+
+For the React client, point the return URL to its `/payment/return` route.
+The Android client refreshes the authenticated order when the user returns from
+the browser. Use a backend URL reachable from the device and persist
+`APP_UPLOADS_PATH` on the backend that serves the catalog.
 
 Register `POST /api/payments/stripe/webhook` in Stripe and subscribe to:
 `checkout.session.completed`, `checkout.session.expired`,

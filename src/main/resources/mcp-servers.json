@@ -14,7 +14,7 @@
       "args": [
         "@bytebase/dbhub@latest",
         "--transport", "stdio",
-        "--dsn", "mysql://root:Mauricio19@localhost:3306/restaurante_ing"
+        "--dsn", "mysql://DB_USER:DB_PASSWORD@localhost:3306/restaurante_ing"
       ]
     },
     "filesystem-server": {

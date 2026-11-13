@@ -37,7 +37,6 @@ public class AdminRestaurantController {
 
 			User user = userService.findUserProfileByJwt(jwt);
 		
-			System.out.println("----TRUE___-----"+jwt);
 			Restaurant restaurant = restaurantService.createRestaurant(req,user);
 			return ResponseEntity.ok(restaurant);
 	}
