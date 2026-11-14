@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "seed": 20261114,
+  "rows": 1825,
+  "products": 5,
+  "dates": 365,
+  "start": "2025-09-01",
+  "end": "2026-08-31",
+  "sha256": "f431d83716ad361aeca71dd4ab1e2732b18e9475c33d939a770481e635abaca6",
+  "assumptions": [
+    "Restaurante abierto todos los días y catálogo disponible.",
+    "Patrón semanal por producto, tendencia lenta del 12% y ruido gaussiano del 9% del nivel.",
+    "Sin festivos, promociones, quiebres de inventario ni demanda no satisfecha.",
+    "Precio y atributos fijos; no identifica efecto causal de cambiar precios.",
+    "No representa un restaurante real. No garantiza desempeño en datos reales."
+  ]
+}

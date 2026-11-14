@@ -1,0 +1,3 @@
+# Preserve the bytes used by the dataset manifests and supplied originals.
+mineria/*.csv -text whitespace=cr-at-eol
+mineria/original/* -text
