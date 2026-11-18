@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.Restaurant.model.Food;
+import com.Restaurant.domain.USER_ROLE;
+import com.Restaurant.model.User;
 import com.Restaurant.service.FoodService;
+import com.Restaurant.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +29,8 @@ class AdminMenuItemControllerTest {
 
 	@Mock
 	private ProductImageStorage productImageStorage;
+	@Mock
+	private UserService userService;
 
 	@InjectMocks
 	private AdminMenuItemController controller;
@@ -38,8 +43,11 @@ class AdminMenuItemControllerTest {
 				"image", "product.jpg", "image/jpeg", new byte[] { 1, 2, 3 });
 		when(menuItemService.findFoodById(productId)).thenReturn(new Food());
 		when(productImageStorage.save(image)).thenReturn(imageUrl);
+		User administrator = new User();
+		administrator.setRole(USER_ROLE.ROLE_ADMIN);
+		when(userService.findUserProfileByJwt("test-jwt")).thenReturn(administrator);
 
-		ResponseEntity<Map<String, String>> response = controller.uploadProductImage(productId, image);
+		ResponseEntity<Map<String, String>> response = controller.uploadProductImage(productId, image, "test-jwt");
 
 		assertEquals(Map.of("url", imageUrl), response.getBody());
 		verify(menuItemService).findFoodById(productId);

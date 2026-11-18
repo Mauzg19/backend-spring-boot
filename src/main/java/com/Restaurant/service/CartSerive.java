@@ -12,7 +12,7 @@ public interface CartSerive {
 
 	public CartItem addItemToCart(AddCartItemRequest req, String jwt) throws UserException, FoodException, CartException, CartItemException;
 
-	public CartItem updateCartItemQuantity(Long cartItemId,int quantity) throws CartItemException;
+	public CartItem updateCartItemQuantity(Long cartItemId, int quantity, String jwt) throws CartItemException, UserException;
 
 	public Cart removeItemFromCart(Long cartItemId, String jwt) throws UserException, CartException, CartItemException;
 

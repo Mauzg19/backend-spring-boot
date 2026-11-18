@@ -46,7 +46,7 @@ public class User {
 	@ElementCollection
 	private List<RestaurantDto> favorites=new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Address> addresses = new ArrayList<>();
 
 	private String status;

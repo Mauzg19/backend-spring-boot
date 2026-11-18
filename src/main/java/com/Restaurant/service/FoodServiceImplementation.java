@@ -170,7 +170,7 @@ public class FoodServiceImplementation implements FoodService {
 		if (name != null) food.setName(name);
 		if (description != null) food.setDescription(description);
 		if (price != null) food.setPrice(price);
-		if (images != null) food.setImages(images);
+		if (images != null) food.setImages(new java.util.ArrayList<>(images));
 		if (category != null) food.setFoodCategory(category);
 		return foodRepository.save(food);
 	}

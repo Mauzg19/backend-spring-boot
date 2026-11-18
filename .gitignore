@@ -35,3 +35,16 @@ build/
 ### VS Code ###
 .vscode/
 apache-maven-3.9.7/
+
+# Conjunto académico entregado para el prototipo; no exportaciones de producción.
+!mineria/dataset_demanda.csv
+!mineria/dataset_sintetico.csv
+!mineria/original/dataset_demanda.csv
+!mineria/requirements.txt
+!mineria/requirements-lock.txt
+mineria/resultados/
+mineria/resultados-sinteticos/
+__pycache__/
+.venv/
+
+mineria/resultados-v2/

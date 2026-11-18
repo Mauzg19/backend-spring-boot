@@ -291,8 +291,8 @@ public class RestaurantTools {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Tool(description = "Exporta cualquier tabla de la base de datos a formato CSV.")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Tool(description = "Exporta una tabla de la base de datos a CSV. Solo ADMIN.")
     public String exportTableToCSV(
             @ToolParam(description = "Nombre de la tabla a exportar") String tableName) {
         LOG.info("tool=exportTableToCSV tableName={}", tableName);
@@ -307,13 +307,13 @@ public class RestaurantTools {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    @Tool(description = "Inserta datos en cualquier tabla de la base de datos.")
+    @Tool(description = "Inserta datos en una tabla de la base de datos. Solo ADMIN.")
     public String insertDataToTable(
             @ToolParam(description = "Nombre de la tabla donde insertar") String tableName,
             @ToolParam(description = "Datos a insertar como mapa JSON (ej: {\"name\":\"valor\",\"price\":100})") Map<String, Object> data) {
-        LOG.info("tool=insertDataToTable tableName={} data={}", tableName, data);
+        LOG.info("tool=insertDataToTable tableName={}", tableName);
         try {
             String result = databaseInsertService.insertData(tableName, data);
             return result;

@@ -18,6 +18,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 	List<Order> findOrdersByRestaurantId(@Param("restaurantId") Long restaurantId);
 
 	Optional<Order> findByClientRequestId(String clientRequestId);
+	boolean existsByDeliveryAddressId(Long addressId);
 
 	List<Order> findByCreatedAtBetween(Date from, Date to);
 }

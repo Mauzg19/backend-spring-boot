@@ -5,11 +5,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.Restaurant.Exception.UserException;
 import com.Restaurant.config.JwtProvider;
@@ -27,6 +29,10 @@ public class UserServiceImplementation implements UserService {
 	private PasswordEncoder passwordEncoder;
 	private PasswordResetTokenRepository passwordResetTokenRepository;
 	private JavaMailSender javaMailSender;
+	@Value("${app.password-reset-url:https://proyecto-restaurante-six.vercel.app/account/reset-password}")
+	private String passwordResetUrl;
+	@Value("${app.mail.from:${spring.mail.username:}}")
+	private String mailFrom;
 	
 	public UserServiceImplementation(
 			UserRepository userRepository,
@@ -89,11 +95,14 @@ public class UserServiceImplementation implements UserService {
         passwordResetTokenRepository.save(passwordResetToken);
 
         // Send an email containing the reset link
-        sendEmail(user.getEmail(), "Password Reset", "Click the following link to reset your password: https://proyecto-restaurante-six.vercel.app/account/reset-password?token=" + resetToken);
+        String link = UriComponentsBuilder.fromUriString(passwordResetUrl)
+                .queryParam("token", resetToken).build().toUriString();
+        sendEmail(user.getEmail(), "Restablecer contraseña", "Abre este enlace para cambiar tu contraseña: " + link);
 	}
 	private void sendEmail(String to, String subject, String message) {
 	    SimpleMailMessage mailMessage = new SimpleMailMessage();
 
+	    mailMessage.setFrom(mailFrom);
 	    mailMessage.setTo(to);
 	    mailMessage.setSubject(subject);
 	    mailMessage.setText(message);

@@ -40,6 +40,7 @@ public class AdminOrderController {
 	
 	
     @DeleteMapping("/order/{orderId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) throws OrderException{
     	if(orderId!=null) {
     		orderService.cancelOrder(orderId);

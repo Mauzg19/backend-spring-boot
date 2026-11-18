@@ -95,8 +95,8 @@ public class ReportTools {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Tool(description = "Lista los archivos de reportes disponibles para descargar. No requiere parámetros.")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Tool(description = "Lista los archivos de reportes disponibles para descargar. Solo ADMIN.")
     public String listAvailableReports() {
         LOG.info("tool=listAvailableReports");
         try {

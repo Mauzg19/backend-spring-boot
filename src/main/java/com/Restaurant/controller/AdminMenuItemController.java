@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.Restaurant.model.Restaurant;
+import com.Restaurant.service.RestaurantAccess;
+import com.Restaurant.model.Category;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.Restaurant.service.CategoryService;
 import com.Restaurant.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +59,14 @@ public class AdminMenuItemController {
 			@RequestBody CreateFoodRequest item, 
 			@RequestHeader("Authorization") String jwt)
 			throws FoodException, UserException, RestaurantException {
-		System.out.println("req-controller ----"+item);
 		User user = userService.findUserProfileByJwt(jwt);
 		if (item.getClientOperationId() != null && !item.getClientOperationId().isBlank()) {
 			Food existing = menuItemService.findFoodByClientOperationId(item.getClientOperationId());
 			if (existing != null) {
-				com.Restaurant.model.Category category = item.getCategory() == null
+				RestaurantAccess.require(user, existing.getRestaurant());
+				Category category = item.getCategory() == null
 						? existing.getFoodCategory()
-						: categoryService.findCategoryById(item.getCategory().getId());
+						: categoryForRestaurant(item.getCategory().getId(), existing.getRestaurant());
 				Food updated = menuItemService.updateFood(
 						existing.getId(), item.getName(), item.getDescription(),
 						item.getPrice(), item.getImages(), category);
@@ -75,7 +79,10 @@ public class AdminMenuItemController {
 		}
 //		Category category=categoryService.findCategoryById(item.getCategoryId());
 		Restaurant restaurant=restaurantService.findRestaurantById(item.getRestaurantId());
-			Food menuItem = menuItemService.createFood(item,item.getCategory(),restaurant);
+		RestaurantAccess.require(user, restaurant);
+			Category category = item.getCategory() == null ? null
+					: categoryForRestaurant(item.getCategory().getId(), restaurant);
+			Food menuItem = menuItemService.createFood(item,category,restaurant);
 			return ResponseEntity.ok(menuItem);
 
 	}
@@ -83,9 +90,10 @@ public class AdminMenuItemController {
 	@PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Map<String, String>> uploadProductImage(
 			@PathVariable Long id,
-			@RequestParam("image") MultipartFile image) throws java.io.IOException, FoodException {
+			@RequestParam("image") MultipartFile image,
+			@RequestHeader("Authorization") String jwt) throws java.io.IOException, FoodException, UserException {
 		try {
-			menuItemService.findFoodById(id);
+			requireFoodAccess(jwt, id);
 			String imageUrl = productImageStorage.save(image);
 			menuItemService.updateFood(id, null, null, null, List.of(imageUrl), null);
 			return ResponseEntity.ok(Map.of("url", imageUrl));
@@ -98,8 +106,7 @@ public class AdminMenuItemController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteItem(@PathVariable Long id, @RequestHeader("Authorization") String jwt)
 			throws UserException, FoodException {
-		User user = userService.findUserProfileByJwt(jwt);
-		
+		requireFoodAccess(jwt, id);
 			menuItemService.deleteFood(id);
 			return ResponseEntity.ok("Menu item deleted");
 		
@@ -117,7 +124,8 @@ public class AdminMenuItemController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Food> updateAvilibilityStatus(
-			@PathVariable Long id) throws FoodException {
+			@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws FoodException, UserException {
+		requireFoodAccess(jwt, id);
 		Food menuItems= menuItemService.updateAvailibilityStatus(id);
 		return ResponseEntity.ok(menuItems);
 	}
@@ -125,7 +133,9 @@ public class AdminMenuItemController {
 	@PutMapping("/{id}/availability")
 	public ResponseEntity<Food> updateAvailability(
 			@PathVariable Long id,
-			@RequestBody AvailabilityRequest request) throws FoodException {
+			@RequestBody AvailabilityRequest request,
+			@RequestHeader("Authorization") String jwt) throws FoodException, UserException {
+		requireFoodAccess(jwt, id);
 		Food menuItem = menuItemService.updateAvailability(id, request.available());
 		return ResponseEntity.ok(menuItem);
 	}
@@ -133,14 +143,30 @@ public class AdminMenuItemController {
 	@PutMapping("/{id}/details")
 	public ResponseEntity<Food> updateFood(
 			@PathVariable Long id,
-			@RequestBody FoodUpdateRequest request) throws FoodException, RestaurantException {
-		com.Restaurant.model.Category category = request.categoryId() == null
+			@RequestBody FoodUpdateRequest request,
+			@RequestHeader("Authorization") String jwt) throws FoodException, RestaurantException, UserException {
+		Food food = requireFoodAccess(jwt, id);
+		Category category = request.categoryId() == null
 				? null
-				: categoryService.findCategoryById(request.categoryId());
+				: categoryForRestaurant(request.categoryId(), food.getRestaurant());
 		Food menuItem = menuItemService.updateFood(
 				id, request.name(), request.description(), request.price(),
 				request.images(), category);
 		return ResponseEntity.ok(menuItem);
+	}
+
+	private Food requireFoodAccess(String jwt, Long id) throws FoodException, UserException {
+		User actor = userService.findUserProfileByJwt(jwt);
+		Food food = menuItemService.findFoodById(id);
+		RestaurantAccess.require(actor, food.getRestaurant());
+		return food;
+	}
+
+	private Category categoryForRestaurant(Long id, Restaurant restaurant) throws RestaurantException {
+		if (id == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecciona una categoría válida.");
+		Category category = categoryService.findCategoryById(id);
+		RestaurantAccess.requireSameRestaurant(restaurant, category.getRestaurant());
+		return category;
 	}
 
 	public record AvailabilityRequest(boolean available) {}

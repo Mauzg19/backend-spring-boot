@@ -72,12 +72,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody User user) throws UserException {
+	@org.springframework.transaction.annotation.Transactional
+	public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody SignupRequest user) throws UserException {
 
-		String email = user.getEmail();
-		String password = user.getPassword();
-		String fullName = user.getFullName();
-		USER_ROLE role=user.getRole();
+		String email = user.email().trim().toLowerCase(java.util.Locale.ROOT);
+		String password = user.password();
+		String fullName = user.fullName().trim();
+		USER_ROLE role=USER_ROLE.ROLE_CUSTOMER;
 
 		User isEmailExist = userRepository.findByEmail(email);
 
@@ -118,6 +119,11 @@ public class AuthController {
 		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 
 	}
+
+	public record SignupRequest(
+			@jakarta.validation.constraints.NotBlank String fullName,
+			@jakarta.validation.constraints.NotBlank @jakarta.validation.constraints.Email String email,
+			@jakarta.validation.constraints.NotBlank @jakarta.validation.constraints.Size(min = 6) String password) {}
 
 	@PostMapping("/signin")
 	public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) {
@@ -188,17 +194,11 @@ public class AuthController {
 	 
 	 @PostMapping("/reset-password-request")
 	    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws UserException {
-	        User user = userService.findUserByEmail(email);
-	        System.out.println("ResetPasswordController.resetPassword()");
-
-	        if (user == null) {
-	        	throw new UserException("user not found");
-	        }
-
-	        userService.sendPasswordResetEmail(user);
+	        User user = userRepository.findByEmail(email.trim().toLowerCase(java.util.Locale.ROOT));
+	        if (user != null) userService.sendPasswordResetEmail(user);
 
 	        ApiResponse res=new ApiResponse();
-	        res.setMessage("Password reset email sent successfully.");
+	        res.setMessage("Si el correo está registrado, recibirás un enlace para restablecer la contraseña.");
 	        res.setStatus(true);
 
 	        return ResponseEntity.ok(res);

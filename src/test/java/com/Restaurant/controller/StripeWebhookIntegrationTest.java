@@ -127,6 +127,19 @@ class StripeWebhookIntegrationTest {
 	}
 
 	@Test
+	void signedCheckoutEventFromAnotherApiVersionIsReconciled() throws Exception {
+		Payment payment = createPendingPayment();
+		String payload = event(payment, "checkout.session.completed", "paid")
+				.replace(Stripe.API_VERSION, "2024-06-20");
+		mockMvc.perform(post("/api/payments/stripe/webhook")
+				.contentType(MediaType.APPLICATION_JSON)
+				.header("Stripe-Signature", signature(payload))
+				.content(payload))
+			.andExpect(status().isOk());
+		assertEquals("PAID", paymentRepository.findById(payment.getId()).orElseThrow().getPaymentStatus());
+	}
+
+	@Test
 	void paidOrderWithoutRewardsMembershipDoesNotCreatePoints() throws Exception {
 		Payment payment = createPendingPayment(false);
 		sendEvent(payment, "checkout.session.completed", "paid");
@@ -188,6 +201,7 @@ class StripeWebhookIntegrationTest {
 		user.setFullName("Rewards member");
 		user.setEmail(UUID.randomUUID() + "@example.test");
 		user.setPassword("not-a-real-password");
+		user.setRole(USER_ROLE.ROLE_CUSTOMER);
 		user = userRepository.saveAndFlush(user);
 
 		RewardsSummaryResponse firstJoin = rewardsService.join(user);
@@ -209,6 +223,7 @@ class StripeWebhookIntegrationTest {
 		user.setFullName("Rewards checkout");
 		user.setEmail(UUID.randomUUID() + "@example.test");
 		user.setPassword("not-a-real-password");
+		user.setRole(USER_ROLE.ROLE_CUSTOMER);
 		user = userRepository.saveAndFlush(user);
 		User rewardsUser = user;
 		rewardsService.join(rewardsUser);
@@ -316,12 +331,14 @@ class StripeWebhookIntegrationTest {
 		user.setFullName("Rewards test");
 		user.setEmail(UUID.randomUUID() + "@example.test");
 		user.setPassword("not-a-real-password");
+		user.setRole(USER_ROLE.ROLE_CUSTOMER);
 		user = userRepository.saveAndFlush(user);
 
 		User owner = new User();
 		owner.setFullName("Restaurant owner");
 		owner.setEmail(UUID.randomUUID() + "@example.test");
 		owner.setPassword("not-a-real-password");
+		owner.setRole(USER_ROLE.ROLE_RESTAURANT_OWNER);
 		owner = userRepository.saveAndFlush(owner);
 		Restaurant restaurant = new Restaurant();
 		restaurant.setOwner(owner);

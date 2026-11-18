@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.Restaurant.Exception.RestaurantException;
 import com.Restaurant.model.Category;
 import com.Restaurant.service.CategoryService;
+import com.Restaurant.service.RestaurantAccess;
 
 @RestController
 @RequestMapping("/api")
@@ -37,6 +38,7 @@ public class CategoryController {
 	@PutMapping("/admin/category/{id}")
 	public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestHeader("Authorization") String jwt, @RequestBody Category category) throws RestaurantException, UserException {
 		User user = userService.findUserProfileByJwt(jwt);
+		RestaurantAccess.require(user, categoryService.findCategoryById(id).getRestaurant());
 		Category updated = categoryService.updateCategory(id, category.getName());
 		return new ResponseEntity<>(updated, HttpStatus.OK);
 	}
@@ -44,6 +46,7 @@ public class CategoryController {
 	@DeleteMapping("/admin/category/{id}")
 	public ResponseEntity<?> deleteCategory(@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws RestaurantException, UserException {
 		User user = userService.findUserProfileByJwt(jwt);
+		RestaurantAccess.require(user, categoryService.findCategoryById(id).getRestaurant());
 		categoryService.deleteCategory(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
