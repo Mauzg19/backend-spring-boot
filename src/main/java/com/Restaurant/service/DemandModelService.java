@@ -24,6 +24,7 @@ public class DemandModelService {
             report = mapper.readTree(input);
         }
         if (model.path("schemaVersion").asInt() != 1 || model.path("layers").size() != 3
+                || !model.path("modelId").equals(report.path("modelId"))
                 || !model.path("datasetSha256").equals(report.path("datasetSha256"))) {
             throw new IOException("Modelo de demanda incompatible con su informe");
         }

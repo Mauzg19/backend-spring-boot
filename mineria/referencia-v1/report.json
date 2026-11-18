@@ -1,0 +1,223 @@
+{
+  "modelId": "demanda-mlp-v1-seed42",
+  "datasetSha256": "f431d83716ad361aeca71dd4ab1e2732b18e9475c33d939a770481e635abaca6",
+  "rawRows": 1825,
+  "usableRows": 1790,
+  "warmupRows": 35,
+  "products": [
+    "Alitas BBQ",
+    "Burrito",
+    "Ensalada",
+    "Hamburguesa",
+    "Pizza"
+  ],
+  "splits": {
+    "train": {
+      "rows": 1340,
+      "start": "2025-09-08",
+      "end": "2026-06-02"
+    },
+    "validation": {
+      "rows": 150,
+      "start": "2026-06-03",
+      "end": "2026-07-02"
+    },
+    "test": {
+      "rows": 300,
+      "start": "2026-07-03",
+      "end": "2026-08-31"
+    }
+  },
+  "architecture": [
+    13,
+    16,
+    8,
+    1
+  ],
+  "parameters": 369,
+  "seed": 42,
+  "epochs": 54,
+  "bestEpoch": 24,
+  "metrics": {
+    "Red neuronal": {
+      "MAE": 3.171572208404541,
+      "RMSE": 4.123110251614993,
+      "R2": 0.955228865146637
+    },
+    "Media móvil 7 días": {
+      "MAE": 11.124762535095215,
+      "RMSE": 13.64463413395222,
+      "R2": 0.5096884965896606
+    },
+    "Regresión lineal": {
+      "MAE": 3.6157963275909424,
+      "RMSE": 4.579745998418928,
+      "R2": 0.9447628855705261
+    },
+    "Último día": {
+      "MAE": 10.49666690826416,
+      "RMSE": 14.031512081697686,
+      "R2": 0.481489896774292
+    }
+  },
+  "trainMetrics": {
+    "MAE": 3.2344887256622314,
+    "RMSE": 4.180283890716326,
+    "R2": 0.9450698494911194
+  },
+  "bestTestMAE": "Red neuronal",
+  "lowDaysRetained": [],
+  "exportMaxError": 1.067993909487086e-05,
+  "examples": [
+    {
+      "request": {
+        "product": "Alitas BBQ",
+        "date": "2026-09-01",
+        "lag1": 30.0,
+        "lag7": 29.0,
+        "mean7": 36.714285714285715
+      },
+      "features": [
+        12000.0,
+        2,
+        30.0,
+        29.0,
+        36.714285714285715,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": 28.068956706088294,
+      "price": 12000.0,
+      "vegetarian": false,
+      "seasonal": false
+    },
+    {
+      "request": {
+        "product": "Burrito",
+        "date": "2026-09-01",
+        "lag1": 34.0,
+        "lag7": 36.0,
+        "mean7": 48.0
+      },
+      "features": [
+        14000.0,
+        2,
+        34.0,
+        36.0,
+        48.0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "expected": 35.2092707028596,
+      "price": 14000.0,
+      "vegetarian": false,
+      "seasonal": true
+    },
+    {
+      "request": {
+        "product": "Ensalada",
+        "date": "2026-09-01",
+        "lag1": 32.0,
+        "lag7": 22.0,
+        "mean7": 24.142857142857142
+      },
+      "features": [
+        10000.0,
+        2,
+        32.0,
+        22.0,
+        24.142857142857142,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "expected": 27.41374329118192,
+      "price": 10000.0,
+      "vegetarian": true,
+      "seasonal": false
+    },
+    {
+      "request": {
+        "product": "Hamburguesa",
+        "date": "2026-09-01",
+        "lag1": 38.0,
+        "lag7": 40.0,
+        "mean7": 65.71428571428571
+      },
+      "features": [
+        15000.0,
+        2,
+        38.0,
+        40.0,
+        65.71428571428571,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "expected": 45.27287608318317,
+      "price": 15000.0,
+      "vegetarian": false,
+      "seasonal": false
+    },
+    {
+      "request": {
+        "product": "Pizza",
+        "date": "2026-09-01",
+        "lag1": 34.0,
+        "lag7": 39.0,
+        "mean7": 45.285714285714285
+      },
+      "features": [
+        22000.0,
+        2,
+        34.0,
+        39.0,
+        45.285714285714285,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected": 32.975566526428096,
+      "price": 22000.0,
+      "vegetarian": false,
+      "seasonal": false
+    }
+  ],
+  "synthetic": true,
+  "scope": "Prototipo académico con datos sintéticos, un restaurante, 365 días.",
+  "evaluation": "Un día adelante con historia observada hasta el día anterior. La prueba es secuencial, no un pronóstico simultáneo de todo el período.",
+  "limitations": [
+    "Se conservan los días de ventas bajas; su causa no está confirmada.",
+    "Ventas simuladas no equivalen a demanda no satisfecha.",
+    "300 observaciones de prueba sintética; sin garantía de generalización a datos reales.",
+    "Las predicciones de la web usan este conjunto académico, no el historial del restaurante autenticado.",
+    "El resultado es una estimación puntual, no una probabilidad ni un porcentaje de confianza."
+  ]
+}

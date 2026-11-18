@@ -1,0 +1,87 @@
+{
+  "modelId": "demanda-mlp-v2-seed42",
+  "mae": 3.050386428833008,
+  "exampleHamburguesa": 49.577291514433696,
+  "api": {
+    "modelId": "demanda-mlp-v2-seed42",
+    "predictionsCompared": 300,
+    "maxError": 9.61602135873818e-06,
+    "allFiveProductsAndWeekdays": true
+  },
+  "web": {
+    "roles": {
+      "cliente": 403,
+      "gerente": 403,
+      "admin": 200,
+      "cocina": 200
+    },
+    "predictions": [
+      {
+        "product": "Alitas BBQ",
+        "units": 27.4168962238763
+      },
+      {
+        "product": "Burrito",
+        "units": 35.6770849723893
+      },
+      {
+        "product": "Ensalada",
+        "units": 25.639930310055636
+      },
+      {
+        "product": "Hamburguesa",
+        "units": 49.577291514433696
+      },
+      {
+        "product": "Pizza",
+        "units": 33.1248467912166
+      }
+    ],
+    "viewports": [
+      1440,
+      768,
+      390
+    ],
+    "result": "pass"
+  },
+  "backendTests": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "reactTests": 6,
+  "flutterTests": 63,
+  "limitations": [
+    "Prueba temporal sintética retrospectiva de v1.",
+    "Teléfono físico y Stripe aplazados por decisión del usuario."
+  ],
+  "legacyWarnings": "npm run build completa con advertencias heredadas. El modo CI estricto falla por esas advertencias fuera del módulo modificado.",
+  "nativeSuccessfulRuns": [
+    "3192ba36d8bc48d786e3754187607323",
+    "9296f6a48c704b8ebf32f4847493d652",
+    "b4d8039d22c84184a2977bf02811ee00"
+  ],
+  "webSuccessfulRuns": [
+    "512e01e0e60a478d9e3dde13ad325e60",
+    "6f4f64833e4a4845948c45b1e8005218",
+    "f306c6ea226f4ac48822d1cddfb4ecbc"
+  ],
+  "jarSha256": "bc2123af7e452c3032862348c619b32f561e2bf7ed8823ff0f216e3027e90f78",
+  "resourceHashes": {
+    "model.json": "180be8f1e58938ff847eabe44640cf38b0d62475e0465163c3c99fbb98287cba",
+    "report.json": "756e967843fb508a0af53f92031f31740fa02fdcafae24a5137d4e8e01c076db"
+  },
+  "nativeFinalRun": "d0b14549d4d74c9194e6f6be167fc0d3",
+  "nativeNegativeControl": {
+    "receipt": "0cfef858d7174116918039938ddcbdd8",
+    "expectedFailure": "V2 prediction must match frozen Keras result",
+    "mutation": "units + 10 only on POST /api/admin/demand/predict",
+    "detected": true
+  },
+  "webNegativeControl": {
+    "receipt": "23bc1ebdc43c4f5b82db02f3542089f7",
+    "detected": true
+  },
+  "apkQaSha256": "bc3c5b1338c9fc72f30aa143a74484cf555c89e8fcd275a22682c4c94a583072"
+}

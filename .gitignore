@@ -46,3 +46,5 @@ mineria/resultados/
 mineria/resultados-sinteticos/
 __pycache__/
 .venv/
+
+mineria/resultados-v2/
